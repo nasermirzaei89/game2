@@ -1,14 +1,14 @@
 using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed;
+    public float movementSpeed;
     public LayerMask solidObjectsLayer;
     private bool isMoving;
     private Vector2 input;
+    public UnityEvent act;
 
     // Update is called once per frame
     void Update()
@@ -37,19 +37,23 @@ public class PlayerController : MonoBehaviour
         return Physics2D.Linecast(transform.position, targetPosition, solidObjectsLayer).collider == null;
     }
 
-
     IEnumerator Move(Vector3 targetPosition)
     {
-        isMoving = true;
-
-        while ((targetPosition - transform.position).sqrMagnitude > Mathf.Epsilon)
+        if (movementSpeed > 0)
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-            yield return null;
+            isMoving = true;
+
+            act.Invoke();
+
+            while ((targetPosition - transform.position).sqrMagnitude > Mathf.Epsilon)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, targetPosition, movementSpeed * Time.deltaTime);
+                yield return null;
+            }
+
+            transform.position = targetPosition;
+
+            isMoving = false;
         }
-
-        transform.position = targetPosition;
-
-        isMoving = false;
     }
 }
